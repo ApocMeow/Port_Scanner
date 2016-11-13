@@ -19,11 +19,11 @@ class Application(tk.Frame):
         self.pack()
         self.create_widgets()
         master.title("Port Scanner")
-        master.geometry('300x400')
+        master.geometry('700x500')
         master.wm_iconbitmap('favicon.ico')
 
     def create_widgets(self):       
-        
+               
         # Label for Host/IP entry box
         self.host_label = tk.Label(self)
         self.host_label['text'] = 'Host Name: '
@@ -54,22 +54,20 @@ class Application(tk.Frame):
         self.end_port["textvariable"] = ''
         self.end_port.grid(row=3, column=1, sticky='W')
         
+        # Text box for our scanning results
+        self.out_text = tk.Text(self)
+        self.out_text.grid(row=4, column=0, columnspan=2, sticky='W')
+        
         # Button to start scanning procedure
         self.start_scan = tk.Button(self)
         self.start_scan["text"] = "Start Scanning"
         self.start_scan["command"] = self.port_scan
-        self.start_scan.grid(row=4, column=0)
+        self.start_scan.grid(row=5, column=0)
         
         # Button to exit application
         self.quit = tk.Button(self, text="QUIT", fg="red", command=root.destroy)
-        self.quit.grid(row=4, column=1)
-
-#    def get_start_port(self):
-#        self.start_port.get()
-#        
-#    def get_end_port(self):
-#        self.end_port.get()
-    
+        self.quit.grid(row=5, column=1)
+           
     def port_scan(self):
         # Host we are targetting for scanning
         host = self.host_name.get()                          
@@ -82,7 +80,7 @@ class Application(tk.Frame):
 
         # This list will hold all of the ports we have found to be open
         open_list =[]
-
+        
         # First we set up our range for scanning
         for port in range(start_port,end_port + 1):
             # Create a socket object
@@ -96,14 +94,16 @@ class Application(tk.Frame):
     
             #Logic for printing and storing the result of our connection test
             if connect_result == 0:
-               print('Port {} is open!'.format (port))
+               self.out_text.insert(tk.END, str('Port {} is open!\n'.format (port)))
+               self.update_idletasks()
                open_list.append(port)
                remote_socket.close()
             else:
-               print('Port {} is closed! Returned: {}'.format (port, connect_result))
+               self.out_text.insert(tk.END, str('Port {} is closed! Returned: {}\n'.format (port, connect_result)))
+               self.update_idletasks()
        
-        print('Port scanning complete on host: {}'.format (host))
-        print('The following ports are open on {}: {}'.format (host, open_list))
+        self.out_text.insert(tk.END, str('Port scanning complete on host: {}\n'.format (host)))
+        self.out_text.insert(tk.END, str('The following ports are open on {}: {}\n'.format (host, open_list)))
         
 
 root = tk.Tk()
